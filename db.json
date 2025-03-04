@@ -1,0 +1,89 @@
+{
+  "todos": [
+    {
+      "id": "1740056483766",
+      "text": "csp",
+      "completed": false,
+      "date": null,
+      "type": "study"
+    },
+    {
+      "id": "1740056561906",
+      "text": "换牙刷头",
+      "completed": false,
+      "date": "2025-05-16",
+      "type": "life"
+    },
+    {
+      "id": "1740581356947",
+      "text": "看下网站选取的论文",
+      "completed": false,
+      "date": "2025-02-27",
+      "type": "study"
+    },
+    {
+      "id": "1740710214088",
+      "text": "经济法期中报告",
+      "completed": false,
+      "date": "2025-05-01",
+      "details": "网络空间安全与经济法的思考。\n个人信息的保护法，消费者权益保护法。\n根据专业和兴趣，法学的毕业论文方向。\n提出、分析问题。\n从一个点介入，很小的范围内。字数不限，两千以上。\n期末考试的时候交。",
+      "type": "study"
+    },
+    {
+      "id": "1740959450456",
+      "text": "猕猴桃",
+      "completed": false,
+      "date": "2025-03-03",
+      "type": "life"
+    },
+    {
+      "id": "1740959693727",
+      "text": "信息隐藏实验",
+      "completed": false,
+      "date": "2025-03-30",
+      "type": "study"
+    },
+    {
+      "id": "1740959734549",
+      "text": "信息隐藏作业",
+      "completed": false,
+      "date": "2025-03-07",
+      "type": "study"
+    },
+    {
+      "id": "1740988857324",
+      "text": "软件调研",
+      "completed": false,
+      "date": "2025-03-17",
+      "type": "study"
+    },
+    {
+      "id": "1741089423650",
+      "text": "洗袜子",
+      "completed": false,
+      "date": "2025-03-04",
+      "type": "life"
+    },
+    {
+      "id": "1741090010761",
+      "text": "国际法预习",
+      "completed": false,
+      "date": "2025-03-11",
+      "type": "study"
+    },
+    {
+      "id": "1741090116815",
+      "text": "数据分批加载",
+      "completed": false,
+      "date": "2025-03-08",
+      "type": "study"
+    },
+    {
+      "id": "1741090188343",
+      "text": "数据安全",
+      "completed": false,
+      "date": "2025-03-23",
+      "type": "study"
+    }
+  ]
+}

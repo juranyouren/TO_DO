@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能待办事项管理</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-wrapper">
+        <div class="container">
+            <h1>生活事项 🏠</h1>
+            <div class="input-group">
+                <input type="text" id="lifeInput" placeholder="输入新的生活事项">
+                <input type="date" id="lifeDate">
+                <button onclick="addTodo('life')">添加</button>
+            </div>
+            <ul id="lifeTodoList" class="todo-list"></ul>
+        </div>
+        <div class="container">
+            <h1>学习事项 📚</h1>
+            <div class="input-group">
+                <input type="text" id="studyInput" placeholder="输入新的学习事项">
+                <input type="date" id="studyDate">
+                <button onclick="addTodo('study')">添加</button>
+            </div>
+            <ul id="studyTodoList" class="todo-list"></ul>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
