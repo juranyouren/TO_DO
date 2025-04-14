@@ -11,72 +11,167 @@ h1 {
   color: #333;
 }
 
-/* 顶部颜色标签栏 */
-.color-tabs {
-  display: flex;
-  justify-content: center;
+/* 训练模块管理区域 */
+.module-container {
+  max-width: 1200px;
   margin: 20px auto;
-  max-width: 800px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.color-tab {
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-module-btn {
+  padding: 10px 20px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-module-btn:hover {
+  background-color: #1976D2;
+}
+
+.module-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 10px;
+}
+
+.module-item {
   flex: 1;
-  margin: 0 5px;
+  min-width: 200px;
   padding: 15px;
   border-radius: 10px;
-  cursor: pointer;
+  cursor: move;
   border: 2px solid #fff;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
 }
 
-.color-tab:hover {
+.module-item:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.color-tab.red {
-  background-color: #ff6b6b;
-  border-color: #e74c3c;
+/* 添加模块表单 */
+.module-form {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  padding: 30px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  z-index: 1000;
 }
 
-.color-tab.green {
-  background-color: #88e288;
-  border-color: #2ecc71;
+.module-form h3 {
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.color-tab.blue {
-  background-color: #74b9ff;
-  border-color: #3498db;
+.module-form input,
+.module-form textarea,
+.module-form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
-.color-tab.orange {
-  background-color: #ffa94d;
-  border-color: #e67e22;
+.module-form textarea {
+  height: 100px;
+  resize: vertical;
 }
 
-.color-tab.empty {
-  background-color: #fff;
-  border: 2px dashed #ccc;
+.module-form button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#saveModuleBtn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+#saveModuleBtn:hover {
+  background-color: #388E3C;
+}
+
+#cancelModuleBtn {
+  background-color: #f44336;
+  color: white;
+}
+
+#cancelModuleBtn:hover {
+  background-color: #d32f2f;
 }
 
 /* 日历容器 */
 #calendar {
-  width: 90%;
-  max-width: 800px;
+  width: 95%;
+  max-width: 1200px;
   margin: 20px auto;
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 15px;
+  padding: 20px;
   background-color: #fff;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* 日历标题 */
+.calendar-header {
+  margin-bottom: 20px;
+}
+
+.calendar-header h2 {
+  font-size: 1.8em;
+  color: #333;
+  margin: 0;
+}
+
+/* 星期标题 */
+.weekday-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.weekday {
+  font-weight: bold;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
 }
 
 /* 日历网格 */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  gap: 15px;
   margin-top: 20px;
 }
 
@@ -87,12 +182,14 @@ h1 {
   border: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   background-color: #fff;
+  min-height: 120px;
+  padding: 10px;
 }
 
 .calendar-cell:hover {
@@ -100,72 +197,99 @@ h1 {
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
+/* 今天的单元格样式 */
+.calendar-cell.today {
+  border: 2px solid #2196F3;
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+}
+
+.calendar-cell.today .date-number {
+  color: #2196F3;
+}
+
+/* 非当前月份的日期 */
+.calendar-cell.prev-month,
+.calendar-cell.next-month {
+  opacity: 0.5;
+}
+
 /* 日期数字 */
 .date-number {
-  font-size: 1.2em;
+  font-size: 1.5em;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
-/* 颜色标记的日历单元格 */
-.calendar-cell.red {
-  background-color: #ffecec;
-  border-color: #e74c3c;
-}
-
-.calendar-cell.green {
-  background-color: #e8f8e8;
-  border-color: #2ecc71;
-}
-
-.calendar-cell.blue {
-  background-color: #e6f4ff;
-  border-color: #3498db;
-}
-
-.calendar-cell.orange {
-  background-color: #fff3e0;
-  border-color: #e67e22;
-}
-
-/* 空白单元格（未设计） */
-.calendar-cell.empty {
-  border: 2px dashed #ccc;
-  background-color: #f9f9f9;
+/* 训练模块标记 */
+.module-marker {
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+  border-radius: 5px;
+  font-size: 0.9em;
+  color: white;
 }
 
 /* 详情展开区域 */
 .details-panel {
   display: none;
-  padding: 15px;
-  margin-top: 10px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 1200px;
   background-color: #f8f8f8;
   border-radius: 8px;
-  text-align: left;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .details-panel.active {
   display: block;
 }
 
-/* 计划详情 */
 .plan-details {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #fff;
+  text-align: left;
+  padding: 20px;
+  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-top: 15px;
+}
+
+.plan-details h4 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.plan-details p {
+  margin: 10px 0;
+  line-height: 1.6;
 }
 
 /* 响应式设计 */
+@media (max-width: 992px) {
+  .calendar-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  .weekday-header {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .weekday-header {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (max-width: 480px) {
   .calendar-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .weekday-header {
     grid-template-columns: repeat(3, 1fr);
   }
   

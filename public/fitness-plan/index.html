@@ -9,12 +9,31 @@
 <body>
   <h1>健身碳循环计划</h1>
   
-  <!-- 颜色标签栏 -->
-  <div class="color-tabs">
-    <div class="color-tab red" data-color="red">红色训练日</div>
-    <div class="color-tab green" data-color="green">绿色训练日</div>
-    <div class="color-tab blue" data-color="blue">蓝色训练日</div>
-    <div class="color-tab orange" data-color="orange">橙色训练日</div>
+  <!-- 训练模块管理区域 -->
+  <div class="module-container">
+    <div class="module-header">
+      <h3>训练模块</h3>
+      <button id="addModuleBtn" class="add-module-btn">添加新模块</button>
+    </div>
+    <div id="moduleList" class="module-list">
+      <!-- 训练模块将由JavaScript动态生成 -->
+    </div>
+  </div>
+
+  <!-- 添加模块的表单 -->
+  <div id="moduleForm" class="module-form">
+    <h3>添加训练模块</h3>
+    <input type="text" id="moduleName" placeholder="模块名称">
+    <textarea id="moduleDescription" placeholder="训练描述"></textarea>
+    <input type="text" id="moduleDuration" placeholder="建议时长 (如: 45-60分钟)">
+    <select id="moduleIntensity">
+      <option value="高">高强度</option>
+      <option value="中">中等强度</option>
+      <option value="低">低强度</option>
+    </select>
+    <input type="color" id="moduleColor" value="#ff6b6b">
+    <button id="saveModuleBtn">保存</button>
+    <button id="cancelModuleBtn">取消</button>
   </div>
   
   <div id="calendar">
