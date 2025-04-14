@@ -1,0 +1,180 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+h1 {
+  margin: 20px 0;
+  color: #333;
+}
+
+/* 顶部颜色标签栏 */
+.color-tabs {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.color-tab {
+  flex: 1;
+  margin: 0 5px;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.color-tab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.color-tab.red {
+  background-color: #ff6b6b;
+  border-color: #e74c3c;
+}
+
+.color-tab.green {
+  background-color: #88e288;
+  border-color: #2ecc71;
+}
+
+.color-tab.blue {
+  background-color: #74b9ff;
+  border-color: #3498db;
+}
+
+.color-tab.orange {
+  background-color: #ffa94d;
+  border-color: #e67e22;
+}
+
+.color-tab.empty {
+  background-color: #fff;
+  border: 2px dashed #ccc;
+}
+
+/* 日历容器 */
+#calendar {
+  width: 90%;
+  max-width: 800px;
+  margin: 20px auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* 日历网格 */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* 日历单元格 */
+.calendar-cell {
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background-color: #fff;
+}
+
+.calendar-cell:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* 日期数字 */
+.date-number {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* 颜色标记的日历单元格 */
+.calendar-cell.red {
+  background-color: #ffecec;
+  border-color: #e74c3c;
+}
+
+.calendar-cell.green {
+  background-color: #e8f8e8;
+  border-color: #2ecc71;
+}
+
+.calendar-cell.blue {
+  background-color: #e6f4ff;
+  border-color: #3498db;
+}
+
+.calendar-cell.orange {
+  background-color: #fff3e0;
+  border-color: #e67e22;
+}
+
+/* 空白单元格（未设计） */
+.calendar-cell.empty {
+  border: 2px dashed #ccc;
+  background-color: #f9f9f9;
+}
+
+/* 详情展开区域 */
+.details-panel {
+  display: none;
+  padding: 15px;
+  margin-top: 10px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.details-panel.active {
+  display: block;
+}
+
+/* 计划详情 */
+.plan-details {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .color-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .color-tab {
+    flex-basis: 40%;
+    margin-bottom: 10px;
+  }
+}

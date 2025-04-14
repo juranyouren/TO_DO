@@ -19,6 +19,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// Serve fitness carbon cycle plan page
+app.use('/fitness-plan', express.static(path.join(__dirname, 'public/fitness-plan')));
+
 // 获取所有待办事项
 app.get('/todos', async (req, res) => {
   await db.read();
