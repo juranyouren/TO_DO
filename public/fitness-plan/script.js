@@ -14,11 +14,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const formTitle = document.getElementById('formTitle');
   const editModuleIdInput = document.getElementById('editModuleId');
 
+  // 添加贴纸容器
+  const stickerContainer = document.createElement('div');
+  stickerContainer.id = 'stickerContainer';
+  stickerContainer.className = 'sticker-container';
+  const mainLayout = document.querySelector('.main-layout'); // 假设主布局容器有这个类
+  if (mainLayout) {
+    mainLayout.parentNode.insertBefore(stickerContainer, mainLayout);
+  } else {
+    calendar.parentNode.insertBefore(stickerContainer, calendar);
+  }
+
+  // 创建贴纸选择界面
+  const stickers = ['cow', 'sheep', 'deer'];
+  stickers.forEach(stickerType => {
+    const stickerElement = document.createElement('div');
+    stickerElement.className = 'sticker';
+    stickerElement.dataset.stickerType = stickerType;
+    stickerElement.draggable = true;
+
+    const stickerImg = document.createElement('img');
+    stickerImg.src = `./assets/stickers/${stickerType}.png`;
+    stickerImg.alt = stickerType;
+    stickerImg.onerror = () => {
+      console.error(`Failed to load sticker: ${stickerType}.png`);
+      stickerElement.textContent = stickerType;
+    };
+
+    stickerElement.appendChild(stickerImg);
+    stickerContainer.appendChild(stickerElement);
+
+    stickerElement.addEventListener('dragstart', (e) => {
+      if (e.target === stickerImg || e.target === stickerElement) {
+        e.dataTransfer.setData('text/stickerType', stickerType);
+        e.dataTransfer.effectAllowed = 'copy';
+        console.log('Dragging sticker:', stickerType);
+      } else {
+        e.preventDefault();
+      }
+    });
+  });
+
   // 数据
   let modules = [];
-  let calendarAssignments = {}; // { 'YYYY-MM-DD': { moduleId: '...', note: '...' }, ... }
+  let calendarAssignments = {}; // { 'YYYY-MM-DD': { moduleIds: [...], note: '...', stickers: [{type: 'cow', id: '...'}, ...] }, ... }
   let selectedModule = null;
-  let currentDetailDateKey = null; // Stores 'note-YYYY-MM-DD' for notepad saving
+  let currentDetailDateKey = null;
 
   // 持久化函数
   function loadData() {
@@ -27,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (storedModules) {
       try {
         modules = JSON.parse(storedModules);
-        if (!Array.isArray(modules)) modules = []; // Ensure it's an array
+        if (!Array.isArray(modules)) modules = [];
       } catch (e) {
         console.error("Error parsing stored modules:", e);
         modules = [];
@@ -39,8 +80,26 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         calendarAssignments = JSON.parse(storedAssignments);
         if (typeof calendarAssignments !== 'object' || calendarAssignments === null) {
-            calendarAssignments = {}; // Ensure it's an object
+          calendarAssignments = {};
         }
+
+        Object.keys(calendarAssignments).forEach(dateKey => {
+          const assignment = calendarAssignments[dateKey];
+          if (assignment.moduleId && !assignment.moduleIds) {
+            assignment.moduleIds = [assignment.moduleId];
+            delete assignment.moduleId;
+          } else if (!assignment.moduleIds) {
+            assignment.moduleIds = [];
+          }
+          if (!assignment.stickers || !Array.isArray(assignment.stickers)) {
+            assignment.stickers = [];
+          }
+          assignment.stickers.forEach(sticker => {
+            if (!sticker.id) {
+              sticker.id = Date.now().toString() + Math.random().toString(16).slice(2);
+            }
+          });
+        });
       } catch (e) {
         console.error("Error parsing stored assignments:", e);
         calendarAssignments = {};
@@ -76,14 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('active');
   });
 
-  // 保存模块按钮 (完成)
+  // 保存模块按钮
   saveModuleBtn.addEventListener('click', () => {
     const name = document.getElementById('moduleName').value.trim();
     const description = document.getElementById('moduleDescription').value.trim();
     const duration = document.getElementById('moduleDuration').value.trim();
     const intensity = document.getElementById('moduleIntensity').value;
     const color = document.getElementById('moduleColor').value;
-    const editId = editModuleIdInput.value; // 获取编辑ID
+    const editId = editModuleIdInput.value;
 
     if (!name || !description || !duration) {
       alert('请填写完整信息');
@@ -91,23 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (editId) {
-      // --- 编辑模式 ---
       const moduleIndex = modules.findIndex(m => m.id === editId);
       if (moduleIndex > -1) {
         const originalColor = modules[moduleIndex].color;
         modules[moduleIndex] = { ...modules[moduleIndex], name, description, duration, intensity, color };
         console.log('Module edited:', modules[moduleIndex]);
-        saveModules(); // 保存更新后的模块列表
-        renderModules(); // 重新渲染模块列表
-        // 如果颜色改变，需要更新日历上的标记颜色
+        saveModules();
+        renderModules();
         if (originalColor !== color) {
-            generateCalendar(); // 重新生成日历以更新颜色
+          generateCalendar();
         }
       } else {
-          console.error("Module to edit not found:", editId);
+        console.error("Module to edit not found:", editId);
       }
     } else {
-      // --- 添加模式 ---
       const newModule = {
         id: Date.now().toString(),
         name,
@@ -118,12 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       modules.push(newModule);
       console.log('Module added:', newModule);
-      saveModules(); // 保存模块数据
-      renderModules(); // 添加后只需渲染模块列表
+      saveModules();
+      renderModules();
     }
 
     moduleForm.style.display = 'none';
-    modalOverlay.classList.remove('active'); // 隐藏遮罩
+    modalOverlay.classList.remove('active');
     resetForm();
   });
 
@@ -141,44 +197,45 @@ document.addEventListener('DOMContentLoaded', () => {
     currentDetailDateKey = null;
   });
 
-  // 点击遮罩层关闭模态框/表单 (修改)
+  // 点击遮罩层关闭模态框/表单
   modalOverlay.addEventListener('click', (event) => {
-    // 检查点击事件的目标是否是遮罩层本身
-    if (event.target === modalOverlay) { 
+    if (event.target === modalOverlay) {
       detailsPanel.classList.remove('active');
-      moduleForm.style.display = 'none'; 
+      moduleForm.style.display = 'none';
       modalOverlay.classList.remove('active');
       currentDetailDateKey = null;
-      resetForm(); 
+      resetForm();
     }
   });
 
   // 记事本输入
   notepad.addEventListener('input', () => {
     if (currentDetailDateKey) {
-      const dateKey = currentDetailDateKey.replace('note-', ''); // 获取 YYYY-MM-DD
+      const dateKey = currentDetailDateKey.replace('note-', '');
       if (!calendarAssignments[dateKey]) {
-          calendarAssignments[dateKey] = {}; // 如果日期不存在，创建对象
+        calendarAssignments[dateKey] = { moduleIds: [], stickers: [], note: '' };
       }
-      calendarAssignments[dateKey].note = notepad.value; // 保存笔记
-      // 如果笔记为空且没有模块ID，则删除该日期条目
-      if (!calendarAssignments[dateKey].note && !calendarAssignments[dateKey].moduleId) {
-          delete calendarAssignments[dateKey];
+      calendarAssignments[dateKey].note = notepad.value;
+
+      const assignment = calendarAssignments[dateKey];
+      if (!assignment.note && (!assignment.moduleIds || assignment.moduleIds.length === 0) && (!assignment.stickers || assignment.stickers.length === 0)) {
+        delete calendarAssignments[dateKey];
+        console.log(`Removed empty entry for ${dateKey}`);
       }
-      saveAssignments(); // 保存分配（包含笔记）
+      saveAssignments();
     }
   });
 
   // --- 函数 ---
 
-  // 重置表单 (完成)
+  // 重置表单
   function resetForm() {
     editModuleIdInput.value = '';
     document.getElementById('moduleName').value = '';
     document.getElementById('moduleDescription').value = '';
     document.getElementById('moduleDuration').value = '';
-    document.getElementById('moduleIntensity').value = '高'; // Reset to default
-    document.getElementById('moduleColor').value = '#ff6b6b'; // Reset to default
+    document.getElementById('moduleIntensity').value = '高';
+    document.getElementById('moduleColor').value = '#ff6b6b';
     formTitle.textContent = '添加训练模块';
   }
 
@@ -239,19 +296,22 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (confirm(`确定要删除模块 "${module.name}" 吗？\n这将从日历中移除所有相关的训练安排。`)) {
-          const index = modules.findIndex(m => m.id === module.id);
+          const moduleIdToDelete = module.id;
+          const index = modules.findIndex(m => m.id === moduleIdToDelete);
           if (index > -1) {
             modules.splice(index, 1);
             saveModules();
 
             let assignmentsChanged = false;
             Object.keys(calendarAssignments).forEach(dateKey => {
-              if (calendarAssignments[dateKey] && calendarAssignments[dateKey].moduleId === module.id) {
-                delete calendarAssignments[dateKey].moduleId;
-                if (!calendarAssignments[dateKey].note) {
-                    delete calendarAssignments[dateKey];
-                }
+              const assignment = calendarAssignments[dateKey];
+              if (assignment && assignment.moduleIds && assignment.moduleIds.includes(moduleIdToDelete)) {
+                assignment.moduleIds = assignment.moduleIds.filter(id => id !== moduleIdToDelete);
                 assignmentsChanged = true;
+                if (assignment.moduleIds.length === 0 && !assignment.note && (!assignment.stickers || assignment.stickers.length === 0)) {
+                  delete calendarAssignments[dateKey];
+                  console.log(`Removed empty entry for ${dateKey} after deleting module ${moduleIdToDelete}`);
+                }
               }
             });
             if (assignmentsChanged) {
@@ -260,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderModules();
             generateCalendar();
-            console.log(`Module ${module.id} deleted.`);
+            console.log(`Module ${moduleIdToDelete} deleted and assignments updated.`);
           }
         }
       });
@@ -272,12 +332,12 @@ document.addEventListener('DOMContentLoaded', () => {
       moduleElement.addEventListener('dragstart', (e) => {
         const currentModuleData = modules.find(m => m.id === module.id);
         if (currentModuleData) {
-            selectedModule = currentModuleData;
-            e.dataTransfer.setData('text/plain', currentModuleData.id);
-            console.log('Dragging module:', selectedModule);
+          e.dataTransfer.setData('text/moduleId', currentModuleData.id);
+          e.dataTransfer.effectAllowed = 'copy';
+          console.log('Dragging module:', currentModuleData.id);
         } else {
-            e.preventDefault();
-            console.error("Cannot drag deleted module");
+          e.preventDefault();
+          console.error("Cannot drag deleted module");
         }
       });
 
@@ -291,7 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calendarHeader = document.createElement('div');
     calendarHeader.className = 'calendar-header';
-    // 添加切换月份的按钮
     const prevMonthBtn = document.createElement('button');
     prevMonthBtn.textContent = '<';
     prevMonthBtn.onclick = () => changeMonth(-1);
@@ -300,18 +359,16 @@ document.addEventListener('DOMContentLoaded', () => {
     nextMonthBtn.onclick = () => changeMonth(1);
     const monthTitle = document.createElement('h2');
     monthTitle.textContent = `${currentYear}年${currentMonth + 1}月`;
-    // 确保按钮和标题在同一行
     calendarHeader.style.display = 'flex';
     calendarHeader.style.justifyContent = 'space-between';
     calendarHeader.style.alignItems = 'center';
-    prevMonthBtn.style.marginRight = '10px'; // 添加一些间距
-    nextMonthBtn.style.marginLeft = '10px'; // 添加一些间距
+    prevMonthBtn.style.marginRight = '10px';
+    nextMonthBtn.style.marginLeft = '10px';
 
     calendarHeader.appendChild(prevMonthBtn);
     calendarHeader.appendChild(monthTitle);
     calendarHeader.appendChild(nextMonthBtn);
     calendar.appendChild(calendarHeader);
-
 
     const weekdayHeader = document.createElement('div');
     weekdayHeader.className = 'weekday-header';
@@ -331,31 +388,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
 
-    // 上个月
     for (let i = 0; i < firstDay; i++) {
       const day = daysInPrevMonth - firstDay + i + 1;
       const cell = createCalendarCell(day, 'prev-month');
       calendarGrid.appendChild(cell);
     }
 
-    // 当月
     for (let i = 1; i <= daysInMonth; i++) {
       const cell = createCalendarCell(i, 'current-month');
-      // 确保 today 样式只在当前视图的今天应用
       if (i === currentDate.getDate() && currentMonth === currentDate.getMonth() && currentYear === currentDate.getFullYear()) {
         cell.classList.add('today');
       }
       calendarGrid.appendChild(cell);
     }
 
-    // 下个月
     const totalCells = 42;
     const currentGridCells = firstDay + daysInMonth;
     const remainingCells = (totalCells - currentGridCells >= 0) ? totalCells - currentGridCells : (totalCells - currentGridCells + 7);
 
     for (let i = 1; i <= remainingCells; i++) {
-        const cell = createCalendarCell(i, 'next-month');
-        calendarGrid.appendChild(cell);
+      const cell = createCalendarCell(i, 'next-month');
+      calendarGrid.appendChild(cell);
     }
 
     calendar.appendChild(calendarGrid);
@@ -363,15 +416,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 切换月份函数
   function changeMonth(delta) {
-      currentMonth += delta;
-      if (currentMonth < 0) {
-          currentMonth = 11;
-          currentYear--;
-      } else if (currentMonth > 11) {
-          currentMonth = 0;
-          currentYear++;
-      }
-      generateCalendar(); // 重新生成日历
+    currentMonth += delta;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    } else if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    generateCalendar();
   }
 
   // 创建日历单元格
@@ -385,35 +438,49 @@ document.addEventListener('DOMContentLoaded', () => {
     dateNumber.textContent = day;
     cell.appendChild(dateNumber);
 
+    const moduleArea = document.createElement('div');
+    moduleArea.className = 'module-area';
+    cell.appendChild(moduleArea);
+
     const assignment = calendarAssignments[dateKey];
-    if (assignment && assignment.moduleId) {
-      const module = modules.find(m => m.id === assignment.moduleId);
-      if (module) {
-        addMarkerToCell(cell, module, dateKey);
-      } else {
-        console.warn(`Module ${assignment.moduleId} not found for date ${dateKey}. Cleaning assignment.`);
-        delete calendarAssignments[dateKey].moduleId;
-        if (!calendarAssignments[dateKey].note) {
+    if (assignment && assignment.moduleIds && assignment.moduleIds.length > 0) {
+      assignment.moduleIds.forEach(moduleId => {
+        const module = modules.find(m => m.id === moduleId);
+        if (module) {
+          addMarkerToCell(moduleArea, module, dateKey);
+        } else {
+          console.warn(`Module ${moduleId} not found for date ${dateKey}. Cleaning assignment.`);
+          calendarAssignments[dateKey].moduleIds = calendarAssignments[dateKey].moduleIds.filter(id => id !== moduleId);
+          if (calendarAssignments[dateKey].moduleIds.length === 0 && !calendarAssignments[dateKey].note && (!calendarAssignments[dateKey].stickers || calendarAssignments[dateKey].stickers.length === 0)) {
             delete calendarAssignments[dateKey];
+          }
+          saveAssignments();
         }
-        saveAssignments();
-      }
+      });
     }
+
+    const stickerArea = document.createElement('div');
+    stickerArea.className = 'sticker-area';
+    cell.appendChild(stickerArea);
+
+    renderStickersInCell(stickerArea, dateKey);
 
     cell.addEventListener('dragover', (e) => {
       e.preventDefault();
-      if (monthClass === 'current-month') {
-          cell.style.border = '2px dashed #2196F3';
+      if (e.dataTransfer.types.includes('text/moduleid') && monthClass === 'current-month') {
+        cell.style.border = '2px dashed #4CAF50';
+        e.dataTransfer.dropEffect = 'copy';
+      } else {
+        e.dataTransfer.dropEffect = 'none';
       }
     });
 
-    cell.addEventListener('dragleave', () => {
+    cell.addEventListener('dragleave', (e) => {
       cell.style.border = '';
-      // 确保 today 样式只在当前月份应用
       if (cell.classList.contains('today') && monthClass === 'current-month') {
-         cell.style.border = '2px solid #2196F3';
+        cell.style.border = '2px solid #2196F3';
       } else {
-         cell.style.border = '1px solid #ddd';
+        cell.style.border = '1px solid #ddd';
       }
     });
 
@@ -421,85 +488,166 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       cell.style.border = '';
       if (cell.classList.contains('today') && monthClass === 'current-month') {
-         cell.style.border = '2px solid #2196F3';
+        cell.style.border = '2px solid #2196F3';
       } else {
-         cell.style.border = '1px solid #ddd';
+        cell.style.border = '1px solid #ddd';
       }
 
-      if (monthClass !== 'current-month') {
-          console.log("Cannot drop module in previous/next month.");
-          return;
-      }
+      if (monthClass !== 'current-month') return;
 
-      if (selectedModule) {
-        console.log(`Dropped module ${selectedModule.id} onto date ${dateKey}`);
+      const droppedModuleId = e.dataTransfer.getData('text/moduleId');
+      if (droppedModuleId) {
+        const droppedModule = modules.find(m => m.id === droppedModuleId);
+        if (droppedModule) {
+          console.log(`Dropped module ${droppedModule.id} onto date ${dateKey}`);
+          if (!calendarAssignments[dateKey]) {
+            calendarAssignments[dateKey] = { moduleIds: [], stickers: [], note: '' };
+          }
+          if (!calendarAssignments[dateKey].moduleIds.includes(droppedModule.id)) {
+            calendarAssignments[dateKey].moduleIds.push(droppedModule.id);
+            saveAssignments();
+            addMarkerToCell(moduleArea, droppedModule, dateKey);
+          } else {
+            console.log(`Module ${droppedModule.id} already exists on ${dateKey}`);
+          }
+        } else {
+          console.error("Dropped module data not found:", droppedModuleId);
+        }
+      }
+    });
+
+    stickerArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.types.includes('text/stickertype') && monthClass === 'current-month') {
+        stickerArea.style.backgroundColor = '#e0f7fa';
+        e.dataTransfer.dropEffect = 'copy';
+        e.stopPropagation();
+      } else {
+        e.dataTransfer.dropEffect = 'none';
+      }
+    });
+
+    stickerArea.addEventListener('dragleave', (e) => {
+      stickerArea.style.backgroundColor = '';
+      e.stopPropagation();
+    });
+
+    stickerArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      stickerArea.style.backgroundColor = '';
+
+      if (monthClass !== 'current-month') return;
+
+      const stickerType = e.dataTransfer.getData('text/stickerType');
+      if (stickerType && stickers.includes(stickerType)) {
+        console.log(`Dropped sticker ${stickerType} onto date ${dateKey}`);
         if (!calendarAssignments[dateKey]) {
-            calendarAssignments[dateKey] = {};
+          calendarAssignments[dateKey] = { moduleIds: [], stickers: [], note: '' };
         }
-        calendarAssignments[dateKey].moduleId = selectedModule.id;
+        const newSticker = {
+          type: stickerType,
+          id: Date.now().toString() + Math.random().toString(16).slice(2)
+        };
+        calendarAssignments[dateKey].stickers.push(newSticker);
         saveAssignments();
-
-        const existingMarker = cell.querySelector('.module-marker');
-        if (existingMarker) {
-          existingMarker.remove();
-        }
-        addMarkerToCell(cell, selectedModule, dateKey);
+        renderStickersInCell(stickerArea, dateKey);
+      } else {
+        console.warn("Invalid sticker type dropped:", stickerType);
       }
-      selectedModule = null;
     });
 
     cell.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-marker-btn')) {
-            return;
-        }
-        if (monthClass !== 'current-month') {
-            return;
-        }
+      if (e.target.classList.contains('remove-marker-btn') || e.target.closest('.remove-marker-btn') ||
+        e.target.classList.contains('remove-sticker-btn') || e.target.closest('.remove-sticker-btn')) {
+        return;
+      }
+      if (monthClass !== 'current-month') {
+        return;
+      }
 
-        const assignmentData = calendarAssignments[dateKey];
-        let module = null;
-        if (assignmentData && assignmentData.moduleId) {
-            module = modules.find(m => m.id === assignmentData.moduleId);
-        }
-        showDetails(module, day, monthClass);
+      showDetails(day, monthClass);
     });
 
     return cell;
   }
 
-  // 辅助函数 - 将模块标记添加到单元格
-  function addMarkerToCell(cell, module, dateKey) {
-      const marker = document.createElement('div');
-      marker.className = 'module-marker';
-      marker.style.backgroundColor = module.color;
-      marker.textContent = module.name;
-      marker.title = module.name;
-      marker.dataset.moduleId = module.id;
+  function addMarkerToCell(moduleArea, module, dateKey) {
+    const marker = document.createElement('div');
+    marker.className = 'module-marker';
+    marker.style.backgroundColor = module.color;
+    marker.textContent = module.name;
+    marker.title = module.name;
+    marker.dataset.moduleId = module.id;
 
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-marker-btn';
-      removeBtn.innerHTML = '&times;';
-      removeBtn.title = '移除此安排';
-      removeBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (confirm(`确定要从 ${dateKey} 移除 "${module.name}" 吗？`)) {
-              console.log(`Removing module ${module.id} from date ${dateKey}`);
-              if (calendarAssignments[dateKey]) {
-                  delete calendarAssignments[dateKey].moduleId;
-                  if (!calendarAssignments[dateKey].note) {
-                      delete calendarAssignments[dateKey];
-                  }
-                  saveAssignments();
-                  marker.remove();
-              }
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-marker-btn';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.title = '移除此安排';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm(`确定要从 ${dateKey} 移除 "${module.name}" 吗？`)) {
+        console.log(`Removing module ${module.id} from date ${dateKey}`);
+        const assignment = calendarAssignments[dateKey];
+        if (assignment && assignment.moduleIds) {
+          assignment.moduleIds = assignment.moduleIds.filter(id => id !== module.id);
+          if (assignment.moduleIds.length === 0 && !assignment.note && (!assignment.stickers || assignment.stickers.length === 0)) {
+            delete calendarAssignments[dateKey];
+            console.log(`Removed empty entry for ${dateKey}`);
           }
-      });
+          saveAssignments();
+          marker.remove();
+        }
+      }
+    });
 
-      marker.appendChild(removeBtn);
-      cell.appendChild(marker);
+    marker.appendChild(removeBtn);
+    moduleArea.appendChild(marker);
   }
 
-  // 获取日期键 YYYY-MM-DD
+  function renderStickersInCell(stickerArea, dateKey) {
+    stickerArea.innerHTML = '';
+    const assignment = calendarAssignments[dateKey];
+    if (assignment && assignment.stickers && assignment.stickers.length > 0) {
+      assignment.stickers.forEach(sticker => {
+        const stickerWrapper = document.createElement('div');
+        stickerWrapper.className = 'cell-sticker';
+        stickerWrapper.dataset.stickerId = sticker.id;
+
+        const stickerImg = document.createElement('img');
+        stickerImg.src = `./assets/stickers/${sticker.type}.png`;
+        stickerImg.alt = sticker.type;
+        stickerImg.onerror = () => {
+          console.error(`Failed to load sticker in cell: ${sticker.type}.png`);
+          stickerWrapper.textContent = sticker.type;
+        };
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-sticker-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.title = '移除贴纸';
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          console.log(`Removing sticker ${sticker.id} (${sticker.type}) from date ${dateKey}`);
+          const currentAssignment = calendarAssignments[dateKey];
+          if (currentAssignment && currentAssignment.stickers) {
+            currentAssignment.stickers = currentAssignment.stickers.filter(s => s.id !== sticker.id);
+            if (currentAssignment.stickers.length === 0 && !currentAssignment.note && (!currentAssignment.moduleIds || currentAssignment.moduleIds.length === 0)) {
+              delete calendarAssignments[dateKey];
+              console.log(`Removed empty entry for ${dateKey}`);
+            }
+            saveAssignments();
+            stickerWrapper.remove();
+          }
+        });
+
+        stickerWrapper.appendChild(stickerImg);
+        stickerWrapper.appendChild(removeBtn);
+        stickerArea.appendChild(stickerWrapper);
+      });
+    }
+  }
+
   function getDateKey(day, monthClass) {
     let year = currentYear;
     let month = currentMonth;
@@ -517,48 +665,75 @@ document.addEventListener('DOMContentLoaded', () => {
         year++;
       }
     }
-    const formattedMonth = String(month + 1).padStart(2, '0');
-    const formattedDay = String(day).padStart(2, '0');
-    return `${year}-${formattedMonth}-${formattedDay}`;
+    const dateObj = new Date(year, month, day);
+    const formattedYear = dateObj.getFullYear();
+    const formattedMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const formattedDay = String(dateObj.getDate()).padStart(2, '0');
+    return `${formattedYear}-${formattedMonth}-${formattedDay}`;
   }
 
-  // 显示详情面板
-  function showDetails(module, day, monthClass) {
+  function showDetails(day, monthClass) {
     if (monthClass !== 'current-month') return;
 
     const dateKey = getDateKey(day, monthClass);
     currentDetailDateKey = `note-${dateKey}`;
 
-    let yearValue = currentYear;
-    let monthValue = currentMonth;
+    const dateObj = new Date(dateKey + 'T00:00:00');
+    const yearValue = dateObj.getFullYear();
+    const monthValue = dateObj.getMonth();
+    const dayValue = dateObj.getDate();
 
     const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-    const dateDisplay = `${yearValue}年${monthNames[monthValue]}${day}日`;
+    const dateDisplay = `${yearValue}年${monthNames[monthValue]}${dayValue}日`;
 
     planDetails.innerHTML = '';
 
-    if (module) {
-      planDetails.innerHTML = `
-        <h4>本月${day}日 - ${module.name}</h4>
-        <p><strong>日期：</strong>${dateDisplay}</p>
-        <p><strong>训练类型：</strong>${module.description}</p>
-        <p><strong>建议时长：</strong>${module.duration}</p>
-        <p><strong>训练强度：</strong>${module.intensity}</p>
-        <p>具体计划可以根据个人情况进行调整。</p>
-      `;
+    const assignmentData = calendarAssignments[dateKey];
+    const assignedModuleIds = (assignmentData && assignmentData.moduleIds) ? assignmentData.moduleIds : [];
+    const savedNote = (assignmentData && assignmentData.note) ? assignmentData.note : '';
+
+    const title = document.createElement('h4');
+    title.textContent = `${monthNames[monthValue]}${dayValue}日 安排`;
+    planDetails.appendChild(title);
+
+    const dateP = document.createElement('p');
+    dateP.innerHTML = `<strong>日期：</strong>${dateDisplay}`;
+    planDetails.appendChild(dateP);
+
+    if (assignedModuleIds.length > 0) {
+      assignedModuleIds.forEach(moduleId => {
+        const module = modules.find(m => m.id === moduleId);
+        if (module) {
+          const moduleDiv = document.createElement('div');
+          moduleDiv.style.borderLeft = `5px solid ${module.color}`;
+          moduleDiv.style.paddingLeft = '10px';
+          moduleDiv.style.marginBottom = '10px';
+          moduleDiv.innerHTML = `
+            <p><strong>训练模块：</strong>${module.name}</p>
+            <p><strong>描述：</strong>${module.description}</p>
+            <p><strong>建议时长：</strong>${module.duration}</p>
+            <p><strong>训练强度：</strong>${module.intensity}</p>
+          `;
+          planDetails.appendChild(moduleDiv);
+        }
+      });
     } else {
-       planDetails.innerHTML = `<h4>本月${day}日</h4><p><strong>日期：</strong>${dateDisplay}</p><p>今天没有安排训练模块。</p>`;
+      const noModuleP = document.createElement('p');
+      noModuleP.textContent = '今天没有安排训练模块。';
+      planDetails.appendChild(noModuleP);
     }
 
-    const assignmentData = calendarAssignments[dateKey];
-    const savedNote = (assignmentData && assignmentData.note) ? assignmentData.note : '';
+    const adjustP = document.createElement('p');
+    adjustP.textContent = '具体计划可以根据个人情况进行调整。';
+    planDetails.appendChild(adjustP);
+
     notepad.value = savedNote;
 
     if (detailsPanel && modalOverlay) {
-        detailsPanel.classList.add('active');
-        modalOverlay.classList.add('active');
+      detailsPanel.classList.add('active');
+      modalOverlay.classList.add('active');
     } else {
-        console.error('Details panel or modal overlay element not found!');
+      console.error('Details panel or modal overlay element not found!');
     }
   }
 
