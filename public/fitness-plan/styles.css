@@ -1,24 +1,40 @@
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
+  /* text-align: center; */ /* 移除全局居中，让 flex 控制 */
   margin: 0;
   padding: 0;
   background-color: #f5f5f5;
 }
 
 h1 {
+  text-align: center; /* 只让标题居中 */
   margin: 20px 0;
   color: #333;
 }
 
-/* 训练模块管理区域 */
+/* 新增：主布局容器 */
+.main-layout {
+  display: flex;
+  gap: 20px; /* 左右两栏间距 */
+  padding: 0 20px; /* 页面左右留白 */
+  max-width: 1600px; /* 限制最大宽度 */
+  margin: 20px auto; /* 居中显示 */
+  align-items: flex-start; /* 顶部对齐 */
+}
+
+/* 训练模块管理区域 (调整宽度) */
 .module-container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
+  /* max-width: 1200px; */ /* 移除之前的最大宽度 */
+  /* margin: 20px auto; */ /* 移除自动外边距 */
+  padding: 15px; /* 稍微减少内边距 */
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  flex: 0 0 300px; /* 固定宽度 300px，不伸缩 */
+  /* 或者使用 flex-basis: 300px; flex-shrink: 0; */
+  height: calc(100vh - 100px); /* 限制高度，允许内部滚动 */
+  display: flex; /* 使内部元素垂直排列 */
+  flex-direction: column; /* 垂直方向 */
 }
 
 .module-header {
@@ -26,40 +42,25 @@ h1 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-shrink: 0; /* 防止头部被压缩 */
 }
 
-.add-module-btn {
-  padding: 10px 20px;
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.add-module-btn:hover {
-  background-color: #1976D2;
-}
-
-/* 新增：模块滑动容器 */
+/* 模块滑动容器 (调整以适应父容器) */
 .module-scroll-container {
-  overflow-x: auto; /* 允许水平滚动 */
-  white-space: nowrap; /* 防止模块换行 */
-  padding-bottom: 10px; /* 留出滚动条空间 */
+  overflow-y: auto; /* 改为垂直滚动 */
+  overflow-x: hidden; /* 隐藏水平滚动条 */
+  flex-grow: 1; /* 占据剩余空间 */
 }
 
 .module-list {
-  display: inline-flex; /* 使列表项水平排列 */
-  gap: 15px;
-  padding: 10px 0; /* 调整内边距 */
-  min-width: 100%; /* 确保容器至少和父容器一样宽 */
+  display: flex; /* 改回 flex */
+  flex-direction: column; /* 垂直排列模块 */
+  gap: 10px; /* 调整模块间距 */
+  padding: 10px 5px; /* 调整内边距 */
 }
 
 .module-item {
-  display: inline-block; /* 改为 inline-block */
-  width: 200px; /* 固定宽度 */
-  min-width: 200px;
+  width: auto; /* 宽度自动适应父容器 */
   padding: 15px;
   border-radius: 10px;
   cursor: move;
@@ -68,7 +69,6 @@ h1 {
   transition: all 0.3s ease;
   position: relative; /* 为了定位按钮 */
   white-space: normal; /* 允许内部文字换行 */
-  vertical-align: top; /* 顶部对齐 */
   color: white; /* 确保文字颜色 */
   text-align: left; /* 模块内文字左对齐 */
 }
@@ -172,56 +172,63 @@ h1 {
   background-color: #d32f2f;
 }
 
-/* 日历容器 */
+/* 日历容器 (调整宽度和尺寸) */
 #calendar {
-  width: 95%; 
-  max-width: 1200px; 
-  margin: 20px auto; 
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 20px;
+  padding: 15px; /* 减少内边距 */
   background-color: #fff;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  flex: 1; /* 占据剩余空间 */
+  /* 新增：限制最大高度，防止页面滚动 */
+  max-height: calc(100vh - 140px); /* 减去顶部标题和一些边距 */
+  overflow-y: auto; /* 如果内容超出，允许日历内部滚动 */
 }
 
-/* 日历标题 */
+/* 日历标题 (缩小字体) */
 .calendar-header {
   margin-bottom: 20px;
 }
 
 .calendar-header h2 {
-  font-size: 1.8em;
+  font-size: 1.5em; /* 缩小字体 */
   color: #333;
   margin: 0;
 }
 
-/* 星期标题 */
+.calendar-header button { /* 调整按钮样式 */
+  padding: 5px 10px;
+  font-size: 1em;
+}
+
+/* 星期标题 (缩小字体和间距) */
 .weekday-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 15px;
-  margin-bottom: 10px;
+  gap: 8px; /* 缩小间距 */
+  margin-bottom: 8px; /* 缩小间距 */
 }
 
 .weekday {
   font-weight: bold;
-  padding: 10px;
+  padding: 8px; /* 减少内边距 */
   background-color: #f0f0f0;
-  border-radius: 8px;
+  border-radius: 6px; /* 缩小圆角 */
+  font-size: 0.9em; /* 缩小字体 */
 }
 
-/* 日历网格 */
+/* 日历网格 (缩小间距) */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 15px;
-  margin-top: 20px;
+  gap: 8px; /* 缩小间距 */
+  margin-top: 15px; /* 调整间距 */
 }
 
-/* 日历单元格 */
+/* 日历单元格 (缩小尺寸和内边距) */
 .calendar-cell {
-  aspect-ratio: 1/1;
-  border-radius: 10px;
+  /* aspect-ratio: 1/1; */ /* 移除宽高比限制 */
+  border-radius: 8px; /* 缩小圆角 */
   border: 1px solid #ddd;
   display: flex;
   flex-direction: column;
@@ -231,8 +238,8 @@ h1 {
   transition: all 0.3s ease;
   position: relative;
   background-color: #fff;
-  min-height: 120px;
-  padding: 10px;
+  min-height: 70px; /* 调整最小高度 */
+  padding: 5px; /* 减少内边距 */
 }
 
 .calendar-cell:hover {
@@ -256,20 +263,20 @@ h1 {
   opacity: 0.5;
 }
 
-/* 日期数字 */
+/* 日期数字 (缩小字体) */
 .date-number {
-  font-size: 1.5em;
+  font-size: 1.1em; /* 缩小字体 */
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 5px; /* 减少间距 */
 }
 
-/* 训练模块标记 */
+/* 训练模块标记 (缩小字体和内边距) */
 .module-marker {
   width: 100%;
-  padding: 5px;
-  margin-top: 5px;
-  border-radius: 5px;
-  font-size: 0.9em;
+  padding: 3px; /* 减少内边距 */
+  margin-top: 3px; /* 减少间距 */
+  border-radius: 4px; /* 缩小圆角 */
+  font-size: 0.8em; /* 缩小字体 */
   color: white;
   position: relative; /* 为了定位删除按钮 */
   text-align: center; /* 标记内文字居中 */
@@ -279,19 +286,19 @@ h1 {
   white-space: nowrap; /* 不换行 */
 }
 
-/* 新增：模块标记删除按钮 */
+/* 模块标记删除按钮 (调整尺寸和位置) */
 .remove-marker-btn {
   position: absolute;
-  top: 1px;
-  right: 1px;
+  top: 0px;
+  right: 0px;
   background: rgba(0, 0, 0, 0.4);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  font-size: 10px;
-  line-height: 16px; /* 垂直居中 */
+  width: 14px;
+  height: 14px;
+  font-size: 9px;
+  line-height: 14px;
   text-align: center;
   cursor: pointer;
   display: none; /* 默认隐藏 */
@@ -302,7 +309,7 @@ h1 {
   display: block; /* 悬停标记时显示 */
 }
 
-/* 详情展开区域 (修改为模态框样式) */
+/* 详情展开区域 (模态框样式 - 保持不变) */
 .details-panel {
   display: none; /* 默认隐藏 */
   position: fixed; /* 固定定位 */
@@ -402,12 +409,31 @@ h1 {
   display: block; /* 激活时显示 */
 }
 
-/* 响应式设计 */
-@media (max-width: 992px) {
+/* 响应式设计 (调整断点和布局) */
+@media (max-width: 1024px) { /* 调整断点 */
+  .main-layout {
+    flex-direction: column; /* 在较小屏幕上改为垂直布局 */
+    align-items: center; /* 居中显示 */
+  }
+
+  .module-container {
+    flex-basis: auto; /* 取消固定宽度 */
+    width: 95%; /* 设置宽度 */
+    max-width: 600px; /* 限制最大宽度 */
+    height: auto; /* 高度自适应 */
+    max-height: 40vh; /* 限制最大高度 */
+    margin-bottom: 20px; /* 添加底部间距 */
+  }
+
+  #calendar {
+    width: 95%; /* 设置宽度 */
+    max-width: 800px; /* 限制最大宽度 */
+  }
+
+  /* 在更小的屏幕上进一步调整日历网格 */
   .calendar-grid {
     grid-template-columns: repeat(5, 1fr);
   }
-  
   .weekday-header {
     grid-template-columns: repeat(5, 1fr);
   }
@@ -417,9 +443,11 @@ h1 {
   .calendar-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-  
   .weekday-header {
     grid-template-columns: repeat(4, 1fr);
+  }
+  .module-container {
+    max-height: 30vh; /* 进一步限制模块容器高度 */
   }
 }
 
@@ -427,17 +455,23 @@ h1 {
   .calendar-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
   .weekday-header {
     grid-template-columns: repeat(3, 1fr);
   }
-  
-  .color-tabs {
-    flex-wrap: wrap;
+  .main-layout {
+    padding: 0 10px; /* 减少左右留白 */
   }
-  
-  .color-tab {
-    flex-basis: 40%;
-    margin-bottom: 10px;
+  .module-container, #calendar {
+    width: 100%; /* 宽度占满 */
+    padding: 10px;
+  }
+  .calendar-cell {
+    min-height: 60px; /* 再次缩小 */
+  }
+  .date-number {
+    font-size: 1em;
+  }
+  .module-marker {
+    font-size: 0.7em;
   }
 }

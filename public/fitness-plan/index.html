@@ -9,21 +9,29 @@
 <body>
   <h1>健身碳循环计划</h1>
   
-  <!-- 训练模块管理区域 -->
-  <div class="module-container">
-    <div class="module-header">
-      <h3>训练模块</h3>
-      <button id="addModuleBtn" class="add-module-btn">添加新模块</button>
-    </div>
-    <!-- 新增：滑动容器 -->
-    <div class="module-scroll-container">
-      <div id="moduleList" class="module-list">
-        <!-- 训练模块将由JavaScript动态生成 -->
+  <!-- 新增：主布局容器 -->
+  <div class="main-layout">
+    <!-- 训练模块管理区域 -->
+    <div class="module-container">
+      <div class="module-header">
+        <h3>训练模块</h3>
+        <button id="addModuleBtn" class="add-module-btn">添加新模块</button>
+      </div>
+      <!-- 新增：滑动容器 -->
+      <div class="module-scroll-container">
+        <div id="moduleList" class="module-list">
+          <!-- 训练模块将由JavaScript动态生成 -->
+        </div>
       </div>
     </div>
-  </div>
+  
+    <!-- 日历 -->
+    <div id="calendar">
+      <!-- 日历网格将由JavaScript生成 -->
+    </div>
+  </div> <!-- 结束 .main-layout -->
 
-  <!-- 添加模块的表单 -->
+  <!-- 添加模块的表单 (保持在布局之外，因为它使用 fixed 定位) -->
   <div id="moduleForm" class="module-form">
     <h3 id="formTitle">添加训练模块</h3> <!-- 修改标题以便动态更改 -->
     <!-- 新增：隐藏字段存储编辑ID -->
@@ -41,12 +49,7 @@
     <button id="cancelModuleBtn">取消</button>
   </div>
   
-  <!-- 不再需要 main-content 包裹 -->
-  <div id="calendar">
-    <!-- 日历网格将由JavaScript生成 -->
-  </div>
-  
-  <!-- 详情面板 (现在是模态框) -->
+  <!-- 详情面板 (模态框) (保持在布局之外) -->
   <div class="details-panel" id="detailsPanel">
     <!-- 添加关闭按钮 -->
     <button id="closeDetailsBtn" class="close-details-btn">&times;</button> 
@@ -61,7 +64,7 @@
     </div>
   </div>
 
-  <!-- 新增：模态框遮罩层 -->
+  <!-- 模态框遮罩层 (保持在布局之外) -->
   <div id="modalOverlay" class="modal-overlay"></div>
   
   <script src="script.js"></script>
