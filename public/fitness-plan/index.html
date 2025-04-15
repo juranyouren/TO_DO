@@ -36,18 +36,28 @@
     <button id="cancelModuleBtn">取消</button>
   </div>
   
-  <!-- 新增容器包裹日历和详情面板 -->
-  <div class="main-content">
-    <div id="calendar">
-      <!-- 日历网格将由JavaScript生成 -->
+  <!-- 不再需要 main-content 包裹 -->
+  <div id="calendar">
+    <!-- 日历网格将由JavaScript生成 -->
+  </div>
+  
+  <!-- 详情面板 (现在是模态框) -->
+  <div class="details-panel" id="detailsPanel">
+    <!-- 添加关闭按钮 -->
+    <button id="closeDetailsBtn" class="close-details-btn">&times;</button> 
+    <h3>训练详情</h3>
+    <div class="plan-details" id="planDetails">
+      <!-- 模块详情将由 JS 填充 -->
     </div>
-    
-    <!-- 详情面板 -->
-    <div class="details-panel" id="detailsPanel">
-      <h3>训练详情</h3>
-      <div class="plan-details" id="planDetails"></div>
+    <!-- 添加记事本区域 -->
+    <div class="notepad-container">
+      <h4>当日笔记</h4>
+      <textarea id="notepad" placeholder="在此记录笔记..."></textarea>
     </div>
   </div>
+
+  <!-- 新增：模态框遮罩层 -->
+  <div id="modalOverlay" class="modal-overlay"></div>
   
   <script src="script.js"></script>
 </body>

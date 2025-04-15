@@ -131,13 +131,14 @@ h1 {
 
 /* 日历容器 */
 #calendar {
+  width: 95%; 
+  max-width: 1200px; 
+  margin: 20px auto; 
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  flex: 1; /* 占据可用空间 */
-  min-width: 60%; /* 保证最小宽度 */
 }
 
 /* 日历标题 */
@@ -229,23 +230,45 @@ h1 {
   color: white;
 }
 
-/* 详情展开区域 */
+/* 详情展开区域 (修改为模态框样式) */
 .details-panel {
-  display: none;
-  padding: 20px;
-  background-color: #f8f8f8;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  flex-basis: 350px; /* 设置基础宽度 */
-  flex-shrink: 0; /* 防止收缩 */
-  align-self: flex-start; /* 顶部对齐 */
-  position: sticky; /* 可选：使其在滚动时固定 */
-  top: 20px; /* 可选：与 sticky 配合使用 */
+  display: none; /* 默认隐藏 */
+  position: fixed; /* 固定定位 */
+  top: 50%; /* 垂直居中 */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%); /* 精确居中 */
+  width: 90%; /* 宽度 */
+  max-width: 600px; /* 最大宽度 */
+  padding: 30px; /* 增加内边距 */
+  background-color: white; /* 背景改为白色 */
+  border-radius: 15px; /* 圆角 */
+  box-shadow: 0 5px 20px rgba(0,0,0,0.25); /* 阴影 */
+  z-index: 1001; /* 置于遮罩层之上 */
+  position: relative; /* 保持相对定位以便关闭按钮定位 */
 }
 
 /* 详情展开区域激活样式 */
 .details-panel.active {
-  display: block;
+  display: block; /* 激活时显示 */
+}
+
+/* 新增：关闭按钮样式 */
+.close-details-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-details-btn:hover {
+  color: #333;
 }
 
 .plan-details {
@@ -266,14 +289,45 @@ h1 {
   line-height: 1.6;
 }
 
-/* 新增：主内容区域布局 */
-.main-content {
-  display: flex;
-  gap: 20px; /* 日历和详情面板之间的间距 */
-  max-width: 1600px; /* 调整最大宽度以容纳两者 */
-  margin: 20px auto;
-  padding: 0 20px; /* 左右留白 */
-  align-items: flex-start; /* 顶部对齐 */
+/* 新增：记事本容器样式 */
+.notepad-container {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.notepad-container h4 {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* 新增：记事本样式 */
+#notepad {
+  width: 100%;
+  height: 150px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box; /* 防止 padding 影响宽度 */
+}
+
+/* 新增：模态框遮罩层样式 */
+.modal-overlay {
+  display: none; /* 默认隐藏 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+  z-index: 1000; /* 低于模态框，高于其他内容 */
+}
+
+/* 新增：模态框遮罩层激活样式 */
+.modal-overlay.active {
+  display: block; /* 激活时显示 */
 }
 
 /* 响应式设计 */
@@ -284,24 +338,6 @@ h1 {
   
   .weekday-header {
     grid-template-columns: repeat(5, 1fr);
-  }
-
-  /* 调整主内容区域为垂直布局 */
-  .main-content {
-    flex-direction: column;
-    align-items: center; /* 居中对齐 */
-  }
-
-  #calendar {
-    width: 95%; /* 恢复宽度设置 */
-    min-width: unset; /* 取消最小宽度 */
-    margin-bottom: 20px; /* 添加底部间距 */
-  }
-
-  .details-panel {
-    width: 95%; /* 宽度适应父容器 */
-    flex-basis: auto; /* 取消基础宽度 */
-    position: static; /* 取消 sticky 定位 */
   }
 }
 
