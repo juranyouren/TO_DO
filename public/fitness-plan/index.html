@@ -15,14 +15,19 @@
       <h3>训练模块</h3>
       <button id="addModuleBtn" class="add-module-btn">添加新模块</button>
     </div>
-    <div id="moduleList" class="module-list">
-      <!-- 训练模块将由JavaScript动态生成 -->
+    <!-- 新增：滑动容器 -->
+    <div class="module-scroll-container">
+      <div id="moduleList" class="module-list">
+        <!-- 训练模块将由JavaScript动态生成 -->
+      </div>
     </div>
   </div>
 
   <!-- 添加模块的表单 -->
   <div id="moduleForm" class="module-form">
-    <h3>添加训练模块</h3>
+    <h3 id="formTitle">添加训练模块</h3> <!-- 修改标题以便动态更改 -->
+    <!-- 新增：隐藏字段存储编辑ID -->
+    <input type="hidden" id="editModuleId"> 
     <input type="text" id="moduleName" placeholder="模块名称">
     <textarea id="moduleDescription" placeholder="训练描述"></textarea>
     <input type="text" id="moduleDuration" placeholder="建议时长 (如: 45-60分钟)">
