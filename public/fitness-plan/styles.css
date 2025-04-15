@@ -131,14 +131,13 @@ h1 {
 
 /* 日历容器 */
 #calendar {
-  width: 95%;
-  max-width: 1200px;
-  margin: 20px auto;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  flex: 1; /* 占据可用空间 */
+  min-width: 60%; /* 保证最小宽度 */
 }
 
 /* 日历标题 */
@@ -234,13 +233,17 @@ h1 {
 .details-panel {
   display: none;
   padding: 20px;
-  margin: 20px auto;
-  max-width: 1200px;
   background-color: #f8f8f8;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  flex-basis: 350px; /* 设置基础宽度 */
+  flex-shrink: 0; /* 防止收缩 */
+  align-self: flex-start; /* 顶部对齐 */
+  position: sticky; /* 可选：使其在滚动时固定 */
+  top: 20px; /* 可选：与 sticky 配合使用 */
 }
 
+/* 详情展开区域激活样式 */
 .details-panel.active {
   display: block;
 }
@@ -263,6 +266,16 @@ h1 {
   line-height: 1.6;
 }
 
+/* 新增：主内容区域布局 */
+.main-content {
+  display: flex;
+  gap: 20px; /* 日历和详情面板之间的间距 */
+  max-width: 1600px; /* 调整最大宽度以容纳两者 */
+  margin: 20px auto;
+  padding: 0 20px; /* 左右留白 */
+  align-items: flex-start; /* 顶部对齐 */
+}
+
 /* 响应式设计 */
 @media (max-width: 992px) {
   .calendar-grid {
@@ -271,6 +284,24 @@ h1 {
   
   .weekday-header {
     grid-template-columns: repeat(5, 1fr);
+  }
+
+  /* 调整主内容区域为垂直布局 */
+  .main-content {
+    flex-direction: column;
+    align-items: center; /* 居中对齐 */
+  }
+
+  #calendar {
+    width: 95%; /* 恢复宽度设置 */
+    min-width: unset; /* 取消最小宽度 */
+    margin-bottom: 20px; /* 添加底部间距 */
+  }
+
+  .details-panel {
+    width: 95%; /* 宽度适应父容器 */
+    flex-basis: auto; /* 取消基础宽度 */
+    position: static; /* 取消 sticky 定位 */
   }
 }
 
