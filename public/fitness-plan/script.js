@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 创建贴纸选择界面
-  const stickers = ['cow', 'sheep', 'deer',"zw","fucked","nice","rest"];
+  const stickers = ['cow', 'sheep', 'deer',"zw","fucked","nice","rest","cheat","lowcarbon","highcarbon","haircut"];
   stickers.forEach(stickerType => {
     const stickerElement = document.createElement('div');
     stickerElement.className = 'sticker';
